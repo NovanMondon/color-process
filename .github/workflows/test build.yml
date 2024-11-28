@@ -1,0 +1,28 @@
+name: Deploy to GitHub Pages
+
+on:
+  pull_request:
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリをクローン
+      - uses: actions/checkout@v3
+
+      # Bunをインストール
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          export BUN_INSTALL="$HOME/.bun"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          bun --version
+
+      # プロジェクトをビルド
+      - name: Build project
+        run: |
+          export BUN_INSTALL="$HOME/.bun"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          bun install
+          bun run build
