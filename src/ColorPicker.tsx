@@ -45,7 +45,7 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
 
         const tX = aEvent.clientX - tLeft
         const tY = aEvent.clientY - tTop
-        const tIndex = (tY * state.image.width + tX) * 4
+        const tIndex = Math.round(tY * state.image.width + tX) * 4
         const tColor = [tData[tIndex], tData[tIndex + 1], tData[tIndex + 2]]
         setState({ ...state, color: tColor })
     }
