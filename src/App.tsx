@@ -22,7 +22,7 @@ function App() {
           <h1>Color Picker</h1>
         </header>
         <div css={css(HorizontalFlex)}>
-          <aside css={{ padding: 10, width: 240 }}>
+          <aside css={{ padding: 10, width: 100 }}>
             <ColorIndicator color={tState.color} />
           </aside>
           <main>
