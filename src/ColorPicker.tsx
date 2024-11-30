@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
-import { HorizontalFlex, InheritedSize } from "./Styles"
+import { HorizontalFlex } from "./Styles"
 import { ColorIndicator } from "./ColorIndicator"
 import { useState } from "react"
 
