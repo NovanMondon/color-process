@@ -2,10 +2,14 @@
 
 import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
-import { InheritedSize } from "./Styles"
+import { HorizontalFlex, InheritedSize } from "./Styles"
+import { ColorIndicator } from "./ColorIndicator"
+import { useState } from "react"
 
 
 export function ColorPicker({ state, setState }: { state: AppState, setState: SetAppState }) {
+    const [tPointedColor, setPointedColor] = useState([0, 0, 0])
+
     // ファイルを選択して画像を読み込む
     const handleFileChange = (aEvent: React.ChangeEvent<HTMLInputElement>) => {
         const tFile = aEvent.target.files?.[0]
@@ -26,48 +30,57 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
     }
 
     // カラーピッカー
-    const pickColor = (aEvent: React.MouseEvent<HTMLDivElement>) => {
+    const pickColor = (_: React.MouseEvent<HTMLDivElement>) => {
+        if (!tPointedColor) return
+        setState(state.update({ color: tPointedColor }))
+    }
+
+    const pointColor = (aEvent: React.MouseEvent<HTMLDivElement>) => {
         if (!state.image) return
 
         const tImageElement = aEvent.currentTarget as HTMLImageElement
         const tRect = tImageElement.getBoundingClientRect()
-        const tTop = tRect.top
-        const tLeft = tRect.left
+        const tX = Math.round(aEvent.clientX - tRect.left)
+        const tY = Math.round(aEvent.clientY - tRect.top)
+        const tColor = getColor(tImageElement, tX, tY)
+        if (tColor) setPointedColor(tColor)
+    }
 
+    const getColor = (aImageElement: HTMLImageElement, aX: number, aY: number) => {
         const tCanvas = document.createElement('canvas')
-        tCanvas.width = state.image.width
-        tCanvas.height = state.image.height
+        tCanvas.width = aImageElement.width
+        tCanvas.height = aImageElement.height
         const tContext = tCanvas.getContext('2d')
         if (!tContext) return
-        tContext.drawImage(state.image, 0, 0)
-        const tImageData = tContext.getImageData(0, 0, state.image.width, state.image.height)
+        tContext.drawImage(aImageElement, 0, 0)
+        const tImageData = tContext.getImageData(0, 0, aImageElement.width, aImageElement.height)
         const tData = tImageData.data
-
-        const tX = Math.round(aEvent.clientX - tLeft)
-        const tY = Math.round(aEvent.clientY - tTop)
-        // console.log(tTop, tLeft, aEvent.clientX, aEvent.clientY, tX, tY)
-        // console.log(tRect.bottom, tRect.right, tRect.width, tRect.height, state.image.width, state.image.height)
-        const tIndex = (tY * state.image.width + tX) * 4
-        // console.log(tData.length, tIndex)
-        const tColor = [tData[tIndex], tData[tIndex + 1], tData[tIndex + 2]]
-        setState({ ...state, color: tColor })
+        const tIndex = (aY * aImageElement.width + aX) * 4
+        return [tData[tIndex], tData[tIndex + 1], tData[tIndex + 2]]
     }
 
     return (
         <>
-            <div css={css(InheritedSize)}>
-                <input type="file" onChange={handleFileChange} />
-                <div css={css(InheritedSize, { border: '1px solid black', overflow: 'scroll' })}
-                    onDrop={handleDrop}
-                    onDragOver={(aEvent) => aEvent.preventDefault()}
-                >
-                    {state.image &&
-                        <img css={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                            src={state.image.src}
-                            alt="dropped"
-                            onClick={pickColor}
-                        />
-                    }
+            <div css={css(HorizontalFlex, InheritedSize)}>
+                <div css={css(InheritedSize)}>
+                    <input type="file" onChange={handleFileChange} />
+                    <div css={css(InheritedSize, { border: '1px solid black', overflow: 'scroll' })}
+                        onDrop={handleDrop}
+                        onDragOver={(aEvent) => aEvent.preventDefault()}
+                    >
+                        {state.image &&
+                            <img css={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                                src={state.image.src}
+                                alt="dropped"
+                                onClick={pickColor}
+                                onMouseMove={pointColor}
+                            />
+                        }
+                    </div>
+                </div>
+                <div css={{ padding: 10 }}>
+                    <h3>Pointed Color</h3>
+                    <ColorIndicator color={tPointedColor} />
                 </div>
             </div>
         </>

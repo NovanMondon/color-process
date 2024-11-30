@@ -8,4 +8,8 @@ export class AppState {
     constructor(aOverride?: Partial<AppState>) {
         Object.assign(this, aOverride)
     }
+
+    update(aOverride: Partial<AppState>) {
+        return new AppState({ ...this, ...aOverride })
+    }
 }
