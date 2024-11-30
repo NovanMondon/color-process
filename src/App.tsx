@@ -1,33 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/** @jsxImportSource @emotion/react */
+
+import { useEffect, useState } from "react"
+import { ColorPicker } from "./ColorPicker"
+import { AppState } from "./appState"
+import { ColorIndicator } from "./ColorIndicator"
+import { css } from "@emotion/react"
+import { CenterFlex, ColorWeak, HorizontalFlex, VerticalFlex } from "./Styles"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [tState, setState] = useState(new AppState())
+
+  // Debug
+  useEffect(() => {
+    console.log(tState)
+  }, [tState])
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <div css={css(VerticalFlex)}>
+        <header css={css(HorizontalFlex, CenterFlex, ColorWeak)}>
+          <h1>Color Picker</h1>
+        </header>
+        <div css={css(HorizontalFlex)}>
+          <aside css={{ padding: 10, width: 100 }}>
+            <ColorIndicator color={tState.color} />
+          </aside>
+          <main>
+            <div css={{ padding: 10 }}>
+              <ColorPicker state={tState} setState={setState} />
+            </div>
+          </main>
+        </div>
+        <footer css={css(HorizontalFlex, CenterFlex, ColorWeak)}>
+          <p>Color Picker</p>
+        </footer>
+      </div >
     </>
   )
 }

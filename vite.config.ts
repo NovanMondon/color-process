@@ -1,8 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import fs from 'fs'
 
-// https://vite.dev/config/
+// package.jsonからbaseを取得して設定
+const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
+const base = packageJson.name
+
 export default defineConfig({
-  base: 'color-process',
+  base: '/' + base + '/',
   plugins: [react()],
 })
