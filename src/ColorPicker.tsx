@@ -1,12 +1,11 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from "@emotion/react"
-import { AppState } from "./appState"
+import { AppState, SetAppState } from "./appState"
 import { InheritedSize } from "./Styles"
 
-type SetState = (aState: AppState) => void
 
-export function ColorPicker({ state, setState }: { state: AppState, setState: SetState }) {
+export function ColorPicker({ state, setState }: { state: AppState, setState: SetAppState }) {
     // ファイルを選択して画像を読み込む
     const handleFileChange = (aEvent: React.ChangeEvent<HTMLInputElement>) => {
         const tFile = aEvent.target.files?.[0]
@@ -55,7 +54,10 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
         <>
             <div css={css(InheritedSize)}>
                 <input type="file" onChange={handleFileChange} />
-                <div css={css(InheritedSize, { border: '1px solid black' })} onDrop={handleDrop} onDragOver={(aEvent) => aEvent.preventDefault()}>
+                <div css={css(InheritedSize, { border: '1px solid black' })}
+                    onDrop={handleDrop}
+                    onDragOver={(aEvent) => aEvent.preventDefault()}
+                >
                     {state.image &&
                         <img css={{ pointerEvents: 'auto', cursor: 'pointer' }}
                             src={state.image.src}
