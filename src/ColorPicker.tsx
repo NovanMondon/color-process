@@ -26,7 +26,7 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
     }
 
     // カラーピッカー
-    const handleClickImage = (aEvent: React.MouseEvent<HTMLDivElement>) => {
+    const pickColor = (aEvent: React.MouseEvent<HTMLDivElement>) => {
         if (!state.image) return
 
         const tImageElement = aEvent.currentTarget as HTMLImageElement
@@ -43,9 +43,12 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
         const tImageData = tContext.getImageData(0, 0, state.image.width, state.image.height)
         const tData = tImageData.data
 
-        const tX = aEvent.clientX - tLeft
-        const tY = aEvent.clientY - tTop
-        const tIndex = Math.round(tY * state.image.width + tX) * 4
+        const tX = Math.round(aEvent.clientX - tLeft)
+        const tY = Math.round(aEvent.clientY - tTop)
+        // console.log(tTop, tLeft, aEvent.clientX, aEvent.clientY, tX, tY)
+        // console.log(tRect.bottom, tRect.right, tRect.width, tRect.height, state.image.width, state.image.height)
+        const tIndex = (tY * state.image.width + tX) * 4
+        // console.log(tData.length, tIndex)
         const tColor = [tData[tIndex], tData[tIndex + 1], tData[tIndex + 2]]
         setState({ ...state, color: tColor })
     }
@@ -62,7 +65,7 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
                         <img css={{ pointerEvents: 'auto', cursor: 'pointer' }}
                             src={state.image.src}
                             alt="dropped"
-                            onClick={handleClickImage}
+                            onClick={pickColor}
                         />
                     }
                 </div>
