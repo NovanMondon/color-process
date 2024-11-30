@@ -54,7 +54,7 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
         <>
             <div css={css(InheritedSize)}>
                 <input type="file" onChange={handleFileChange} />
-                <div css={css(InheritedSize, { border: '1px solid black' })}
+                <div css={css(InheritedSize, { border: '1px solid black', overflow: 'scroll' })}
                     onDrop={handleDrop}
                     onDragOver={(aEvent) => aEvent.preventDefault()}
                 >
