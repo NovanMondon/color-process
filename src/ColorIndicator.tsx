@@ -13,7 +13,7 @@ export function ColorIndicator({ color }: { color: number[] }) {
 
     return (
         <div>
-            {(color[0] && color[1] && color[2]) ? (
+            {(color[0] !== undefined && color[1] !== undefined && color[2] !== undefined) ? (
                 <div css={css(VerticalFlex, CenterFlex)}>
                     <div css={{ width: 60, height: 30, backgroundColor: `rgb(${color[0]}, ${color[1]}, ${color[2]})` }} />
                     <div>{`#${numbers2ColorCode(color)}`}</div>

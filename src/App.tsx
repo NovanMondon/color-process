@@ -37,7 +37,7 @@ function App() {
                 <ColorPicker state={tState} setState={setState} />
               }
               {tMode === "ColorSlider" &&
-                <ColorSlider></ColorSlider>
+                <ColorSlider state={tState} setState={setState} />
               }
             </div>
           </main>

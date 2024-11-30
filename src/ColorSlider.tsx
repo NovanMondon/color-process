@@ -1,9 +1,12 @@
 /** @jsxImportSource @emotion/react */
 
-export const ColorSlider = () => {
+import { AppState, SetAppState } from "./appState"
+
+export const ColorSlider = ({ state, setState }: { state: AppState, setState: SetAppState }) => {
+
     return (
         <div>
-            <h1>Color Slider</h1>
+            <button onClick={() => setState(state.update({ color: [255, 0, 0] }))}>赤</button>
         </div>
     )
 }
