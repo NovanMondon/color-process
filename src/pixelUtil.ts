@@ -4,7 +4,7 @@ export type PixelData = {
     data: number[][][]
 }
 
-export const imageUtil = {
+export const pixelUtil = {
     Element2ImageData: (aImageElement: HTMLImageElement): PixelData | null => {
         const tCanvas = document.createElement('canvas')
         tCanvas.width = aImageElement.width
@@ -32,7 +32,7 @@ export const imageUtil = {
         }
     },
 
-    ImageData2Element: (aImageData: PixelData): HTMLImageElement | null => {
+    ImageData2URL: (aImageData: PixelData): string | null => {
         const tCanvas = document.createElement('canvas')
         tCanvas.width = aImageData.width
         tCanvas.height = aImageData.height
@@ -50,8 +50,6 @@ export const imageUtil = {
         }
         const tImageData = new ImageData(tData, aImageData.width, aImageData.height)
         tContext.putImageData(tImageData, 0, 0)
-        const tImageElement = document.createElement('img')
-        tImageElement.src = tCanvas.toDataURL()
-        return tImageElement
+        return tCanvas.toDataURL()
     }
 }

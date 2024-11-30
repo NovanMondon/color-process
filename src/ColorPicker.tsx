@@ -5,7 +5,7 @@ import { AppState, SetAppState } from "./appState"
 import { HorizontalFlex } from "./Styles"
 import { ColorIndicator } from "./ColorIndicator"
 import { useEffect, useState } from "react"
-import { imageUtil, PixelData } from "./pixelUtil"
+import { pixelUtil, PixelData } from "./pixelUtil"
 
 
 export function ColorPicker({ state, setState }: { state: AppState, setState: SetAppState }) {
@@ -14,7 +14,7 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
 
     useEffect(() => {
         if (!state.image) return
-        const tImageData = imageUtil.Element2ImageData(state.image)
+        const tImageData = pixelUtil.Element2ImageData(state.image)
         if (!tImageData) return
         setImageData(tImageData)
     }, [state.image])
