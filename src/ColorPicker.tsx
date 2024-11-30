@@ -61,10 +61,10 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
 
     return (
         <>
-            <div css={css(HorizontalFlex, InheritedSize)}>
-                <div css={css(InheritedSize)}>
+            <div css={css(HorizontalFlex)}>
+                <div css={{ height: 750, width: 750 }}>
                     <input type="file" onChange={handleFileChange} />
-                    <div css={css(InheritedSize, { border: '1px solid black', overflow: 'scroll' })}
+                    <div css={css({ border: '1px solid black', overflow: 'scroll', height: 720, width: 720 })}
                         onDrop={handleDrop}
                         onDragOver={(aEvent) => aEvent.preventDefault()}
                     >

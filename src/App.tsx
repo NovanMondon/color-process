@@ -26,7 +26,7 @@ function App() {
             <ColorIndicator color={tState.color} />
           </aside>
           <main>
-            <div css={{ padding: 10, height: 720, width: 720 }}>
+            <div css={{ padding: 10 }}>
               <ColorPicker state={tState} setState={setState} />
             </div>
           </main>
