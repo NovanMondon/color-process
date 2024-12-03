@@ -70,5 +70,19 @@ export const pixelUtil = {
         }
         const tImageData = new ImageData(tData, aImageData.width, aImageData.height)
         tContext.putImageData(tImageData, 0, 0)
-    }
+    },
+
+    GeneratePixelFromFunc: (aWidth: number, aHeight: number, aColor: (x: number, y: number) => number[]): PixelData => {
+        const tSliderPixel: PixelData = { width: aWidth, height: aHeight, data: [] }
+        for (let y = 0; y < tSliderPixel.height; y++) {
+            const tRow: number[][] = []
+            for (let x = 0; x < tSliderPixel.width; x++) {
+                const tX = x / (tSliderPixel.width - 1)
+                const tY = y / (tSliderPixel.height - 1)
+                tRow.push(aColor(tX, tY))
+            }
+            tSliderPixel.data.push(tRow)
+        }
+        return tSliderPixel
+    },
 }

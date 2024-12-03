@@ -12,4 +12,8 @@ export class AppState {
     update(aOverride: Partial<AppState>) {
         return new AppState({ ...this, ...aOverride })
     }
+
+    isColorSanitized(): boolean {
+        return this.color.length === 3 && this.color.every(tValue => tValue >= 0 && tValue <= 255)
+    }
 }
