@@ -13,6 +13,8 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
     const [tInitialized, setInitialized] = useState(false)
     const [tSliderURLs, setSliderURLs] = useState<string[]>([])
     const [tSliderValues, setSliderValues] = useState<{ [index: number]: number }>({})
+    const [tSliderMaxes, setSliderMaxes] = useState<{ [index: number]: number }>({})
+    const [tSliderMins, setSliderMins] = useState<{ [index: number]: number }>({})
 
     // 初期化処理
     useEffect(() => {
@@ -40,6 +42,8 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
 
         setSliderURLs(tSliderURLs)
         setSliderValues({ 0: 0, 1: 0, 2: 0 })
+        setSliderMaxes({ 0: 255, 1: 255, 2: 255 })
+        setSliderMins({ 0: 0, 1: 0, 2: 0 })
         setInitialized(true)
     }, [tSliderURLs])
 
@@ -63,6 +67,13 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
 
     const tSliderWidth = 720
 
+    const onSlide = (e: React.MouseEvent<HTMLImageElement, MouseEvent>, index: number) => {
+        const tImageElement = e.currentTarget as HTMLImageElement
+        const tRect = tImageElement.getBoundingClientRect()
+        const tX = e.clientX - tRect.left
+        setSliderValues({ ...tSliderValues, [index]: Math.round(tX / tSliderWidth * (tSliderMaxes[index] - tSliderMins[index] + 1) + tSliderMins[index]) })
+    }
+
     return (
         <div css={css(VerticalFlex)}>
             <p>スライダー上をドラッグして設定</p>
@@ -71,19 +82,8 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                     <img css={{ height: "1em", width: tSliderWidth, margin: 5 }}
                         src={url}
                         alt={`slider-${index}`}
-                        onMouseDown={(e) => {
-                            const tImageElement = e.currentTarget as HTMLImageElement
-                            const tRect = tImageElement.getBoundingClientRect()
-                            const tX = e.clientX - tRect.left
-                            setSliderValues({ ...tSliderValues, [index]: Math.round(tX / tSliderWidth * 256) })
-                        }}
-                        onMouseMove={(e) => {
-                            if (e.buttons !== 1) return
-                            const tImageElement = e.currentTarget as HTMLImageElement
-                            const tRect = tImageElement.getBoundingClientRect()
-                            const tX = e.clientX - tRect.left
-                            setSliderValues({ ...tSliderValues, [index]: Math.round(tX / tSliderWidth * 256) })
-                        }}
+                        onMouseDown={(e) => { onSlide(e, index) }}
+                        onMouseMove={(e) => { if (e.buttons === 1) onSlide(e, index) }}
                         onDragStart={(e) => e.preventDefault()}
                     />
                     <input css={{ width: "3em", margin: 5 }}
