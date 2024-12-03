@@ -6,6 +6,7 @@ import { HorizontalFlex, VerticalFlex } from "./Styles"
 import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
 import { colorUtil } from "./colorUtil"
+import { log } from "console"
 
 type ColorSliderMode = "RGB" | "HSV"
 
@@ -78,25 +79,22 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
             case "RGB":
                 for (let i = 0; i < 3; i++) {
                     if (tSliderValues[i] === undefined) return
-                    tColor[i] = Math.min(Math.max(tSliderValues[i], tSliderMins[i]), tSliderMaxes[i])
+                    if (tSliderValues[i] < tSliderMins[i]) { setSliderValues({ ...tSliderValues, [i]: tSliderMins[i] }); return }
+                    if (tSliderValues[i] > tSliderMaxes[i]) { setSliderValues({ ...tSliderValues, [i]: tSliderMaxes[i] }); return }
+                    tColor[i] = tSliderValues[i]
                 }
                 setState(state.update({ color: tColor }))
-                if (tSliderValues[0] !== tColor[0] || tSliderValues[1] !== tColor[1] || tSliderValues[2] !== tColor[2]) {
-                    setSliderValues({ 0: tColor[0], 1: tColor[1], 2: tColor[2] })
-                }
                 break
             case "HSV":
                 let tHSV = [0, 0, 0]
                 for (let i = 0; i < 3; i++) {
                     if (tSliderValues[i] === undefined) return
-                    tHSV[i] = Math.min(Math.max(tSliderValues[i], tSliderMins[i]), tSliderMaxes[i])
+                    if (tSliderValues[i] < tSliderMins[i]) { setSliderValues({ ...tSliderValues, [i]: tSliderMins[i] }); return }
+                    if (tSliderValues[i] > tSliderMaxes[i]) { setSliderValues({ ...tSliderValues, [i]: tSliderMaxes[i] }); return }
+                    tHSV[i] = tSliderValues[i]
                 }
                 tColor = colorUtil.HSV2RGB(tHSV)
                 setState(state.update({ color: tColor }))
-                if (tSliderValues[0] !== tHSV[0] || tSliderValues[1] !== tHSV[1] || tSliderValues[2] !== tHSV[2]) {
-                    tHSV = colorUtil.RGB2HSV(tColor)
-                    setSliderValues({ 0: tHSV[0], 1: tHSV[1], 2: tHSV[2] })
-                }
                 break
         }
 
@@ -108,7 +106,10 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
         const tImageElement = e.currentTarget as HTMLImageElement
         const tRect = tImageElement.getBoundingClientRect()
         const tX = e.clientX - tRect.left
-        setSliderValues({ ...tSliderValues, [index]: tX / tSliderWidth * (tSliderMaxes[index] - tSliderMins[index]) + tSliderMins[index] })
+        setSliderValues({
+            ...tSliderValues,
+            [index]: Math.round((tX / tSliderWidth * (tSliderMaxes[index] - tSliderMins[index]) + tSliderMins[index]) * 100) / 100
+        })
     }
 
     return (
