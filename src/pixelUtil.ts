@@ -51,5 +51,24 @@ export const pixelUtil = {
         const tImageData = new ImageData(tData, aImageData.width, aImageData.height)
         tContext.putImageData(tImageData, 0, 0)
         return tCanvas.toDataURL()
+    },
+
+    DrawImageData: (aImageData: PixelData, aCanvas: HTMLCanvasElement): void => {
+        aCanvas.width = aImageData.width
+        aCanvas.height = aImageData.height
+        const tContext = aCanvas.getContext('2d')
+        if (!tContext) return
+        const tData = new Uint8ClampedArray(aImageData.width * aImageData.height * 4)
+        for (let y = 0; y < aImageData.height; y++) {
+            for (let x = 0; x < aImageData.width; x++) {
+                const tIndex = (y * aImageData.width + x) * 4
+                tData[tIndex] = aImageData.data[y][x][0]
+                tData[tIndex + 1] = aImageData.data[y][x][1]
+                tData[tIndex + 2] = aImageData.data[y][x][2]
+                tData[tIndex + 3] = 255
+            }
+        }
+        const tImageData = new ImageData(tData, aImageData.width, aImageData.height)
+        tContext.putImageData(tImageData, 0, 0)
     }
 }
