@@ -12,8 +12,8 @@ type ColorSliderMode = "RGB" | "HSV"
 
 export const ColorSlider = ({ state, setState }: { state: AppState, setState: SetAppState }) => {
     const [tMode, setMode] = useState<ColorSliderMode>("RGB")
+    const [tFlagRealtime, setFlagRealtime] = useState(false)
     const [tInitialized, setInitialized] = useState(false)
-    // const [tSliderURLs, setSliderURLs] = useState<string[]>([])
     const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
     const [tSliderValues, setSliderValues] = useState<{ [index: number]: number }>({})
     const [tSliderMaxes, setSliderMaxes] = useState<{ [index: number]: number }>({})
@@ -32,11 +32,6 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
 
         switch (tMode) {
             case "RGB":
-                // const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), 0, 0])
-                // const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, Math.round(x * 255), 0])
-                // const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, 0, Math.round(x * 255)])
-                // tSliderPixels = [tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel]
-
                 if (!state.isColorSanitized()) {
                     console.log("Color not sanitized")
                     setSliderValues({ 0: 0, 1: 0, 2: 0 })
@@ -47,11 +42,6 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                 setSliderMins({ 0: 0, 1: 0, 2: 0 })
                 break
             case "HSV":
-                // const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, 1, 1]))
-                // const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, x, 1]))
-                // const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, 0, x]))
-                // tSliderPixels = [tHueSliderPixel, tSaturationSliderPixel, tValueSliderPixel]
-
                 if (state.color.length !== 3) {
                     setSliderValues({ 0: 0, 1: 0, 2: 0 })
                 } else {
@@ -81,10 +71,17 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                     tRGB[i] = tSliderValues[i]
                 }
 
-                const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), tRGB[1], tRGB[2]])
-                const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], Math.round(x * 255), tRGB[2]])
-                const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], tRGB[1], Math.round(x * 255)])
-                setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
+                if (tFlagRealtime) {
+                    const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), tRGB[1], tRGB[2]])
+                    const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], Math.round(x * 255), tRGB[2]])
+                    const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], tRGB[1], Math.round(x * 255)])
+                    setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
+                } else {
+                    const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), 0, 0])
+                    const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, Math.round(x * 255), 0])
+                    const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, 0, Math.round(x * 255)])
+                    setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
+                }
                 tColor = tRGB
                 break
             case "HSV":
@@ -97,14 +94,21 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                 }
 
                 tColor = colorUtil.HSV2RGB(tHSV)
-                const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, tHSV[1], tHSV[2]]))
-                const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], x, 1]))
-                const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], 0, x]))
-                setSliderPixels([tHueSliderPixel, tSaturationSliderPixel, tValueSliderPixel])
+                if (tFlagRealtime) {
+                    const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, tHSV[1], tHSV[2]]))
+                    const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], x, 1]))
+                    const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], 0, x]))
+                    setSliderPixels([tHueSliderPixel, tSaturationSliderPixel, tValueSliderPixel])
+                } else {
+                    const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, 1, 1]))
+                    const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, x, 1]))
+                    const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, 0, x]))
+                    setSliderPixels([tHueSliderPixel, tSaturationSliderPixel, tValueSliderPixel])
+                }
                 break
         }
         setState(state.update({ color: tColor }))
-    }, [tSliderValues])
+    }, [tSliderValues, tFlagRealtime])
 
     const tSliderWidth = 720
 
@@ -121,8 +125,20 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
     return (
         <div css={css(VerticalFlex)}>
             <div css={css(HorizontalFlex)}>
-                <button onClick={() => setMode("RGB")}>RGB</button>
-                <button onClick={() => setMode("HSV")}>HSV</button>
+                <div css={css(HorizontalFlex, { margin: 5 })}>
+                    <button onClick={() => setMode("RGB")}>RGB</button>
+                    <button onClick={() => setMode("HSV")}>HSV</button>
+                </div>
+                <div css={css(HorizontalFlex, { margin: 5 })}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={tFlagRealtime}
+                            onChange={(e) => setFlagRealtime(e.target.checked)}
+                        />
+                        リアルタイム色反映
+                    </label>
+                </div>
             </div>
             <p>スライダー上をドラッグして設定</p>
             {tSliderPixels.map((pixelData, index) => (
