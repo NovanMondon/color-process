@@ -4,11 +4,20 @@ import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
 import { HorizontalFlex } from "./Styles"
 import { ColorIndicator } from "./ColorIndicator"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { pixelUtil, PixelData } from "./pixelUtil"
 
 
 export function ColorPicker({ state, setState }: { state: AppState, setState: SetAppState }) {
     const [tPointedColor, setPointedColor] = useState([0, 0, 0])
+    const [tImageData, setImageData] = useState<PixelData | null>(null)
+
+    useEffect(() => {
+        if (!state.image) return
+        const tImageData = pixelUtil.Element2ImageData(state.image)
+        if (!tImageData) return
+        setImageData(tImageData)
+    }, [state.image])
 
     // ファイルを選択して画像を読み込む
     const handleFileChange = (aEvent: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,26 +46,14 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
 
     const pointColor = (aEvent: React.MouseEvent<HTMLDivElement>) => {
         if (!state.image) return
+        if (!tImageData) return
 
         const tImageElement = aEvent.currentTarget as HTMLImageElement
         const tRect = tImageElement.getBoundingClientRect()
         const tX = Math.round(aEvent.clientX - tRect.left)
         const tY = Math.round(aEvent.clientY - tRect.top)
-        const tColor = getColor(tImageElement, tX, tY)
-        if (tColor) setPointedColor(tColor)
-    }
 
-    const getColor = (aImageElement: HTMLImageElement, aX: number, aY: number) => {
-        const tCanvas = document.createElement('canvas')
-        tCanvas.width = aImageElement.width
-        tCanvas.height = aImageElement.height
-        const tContext = tCanvas.getContext('2d')
-        if (!tContext) return
-        tContext.drawImage(aImageElement, 0, 0)
-        const tImageData = tContext.getImageData(0, 0, aImageElement.width, aImageElement.height)
-        const tData = tImageData.data
-        const tIndex = (aY * aImageElement.width + aX) * 4
-        return [tData[tIndex], tData[tIndex + 1], tData[tIndex + 2]]
+        setPointedColor(tImageData.data[tY][tX])
     }
 
     return (
