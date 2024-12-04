@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
-import { HorizontalFlex, VerticalFlex } from "./Styles"
+import { HorizontalFlex, InheritedSize, VerticalFlex } from "./Styles"
 import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
 import { colorUtil } from "./colorUtil"
@@ -18,6 +18,7 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
     const [tSliderValues, setSliderValues] = useState<{ [index: number]: number }>({})
     const [tSliderMaxes, setSliderMaxes] = useState<{ [index: number]: number }>({})
     const [tSliderMins, setSliderMins] = useState<{ [index: number]: number }>({})
+    const [tSliderThumbPositions, setSliderThumbPositions] = useState<{ [index: number]: number }>({})
 
     // 初期化処理
     useEffect(() => {
@@ -62,6 +63,7 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
         let tColor = [0, 0, 0]
         switch (tMode) {
             case "RGB":
+                // 値のチェック
                 let tRGB = [0, 0, 0]
                 for (let i = 0; i < 3; i++) {
                     if (tSliderValues[i] === undefined) return
@@ -70,7 +72,9 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                     if (Math.round(tSliderValues[i]) !== tSliderValues[i]) { setSliderValues({ ...tSliderValues, [i]: Math.round(tSliderValues[i]) }); return }
                     tRGB[i] = tSliderValues[i]
                 }
+                tColor = tRGB
 
+                // スライダー画像の生成
                 if (tFlagRealtime) {
                     const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), tRGB[1], tRGB[2]])
                     const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], Math.round(x * 255), tRGB[2]])
@@ -82,7 +86,6 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                     const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, 0, Math.round(x * 255)])
                     setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
                 }
-                tColor = tRGB
                 break
             case "HSV":
                 let tHSV = [0, 0, 0]
@@ -92,8 +95,8 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                     if (tSliderValues[i] > tSliderMaxes[i]) { setSliderValues({ ...tSliderValues, [i]: tSliderMaxes[i] }); return }
                     tHSV[i] = tSliderValues[i]
                 }
-
                 tColor = colorUtil.HSV2RGB(tHSV)
+
                 if (tFlagRealtime) {
                     const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, tHSV[1], tHSV[2]]))
                     const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], x, 1]))
@@ -111,6 +114,18 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
     }, [tSliderValues, tFlagRealtime])
 
     const tSliderWidth = 720
+    const tSliderHeight = 20
+    const tSliderHandleRadius = 8
+
+    // スライダーハンドル移動処理
+    useEffect(() => {
+        const tThumbPositions: { [index: number]: number } = {}
+        for (let tKey in tSliderValues) {
+            if (tSliderValues[tKey] === undefined) continue
+            tThumbPositions[tKey] = (tSliderValues[tKey] - tSliderMins[tKey]) / (tSliderMaxes[tKey] - tSliderMins[tKey]) * tSliderWidth - tSliderHandleRadius
+        }
+        setSliderThumbPositions(tThumbPositions)
+    }, [tSliderValues])
 
     const onSlide = (e: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
         const tElement = e.currentTarget as HTMLElement
@@ -121,6 +136,18 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
             [index]: Math.round((tX / tSliderWidth * (tSliderMaxes[index] - tSliderMins[index]) + tSliderMins[index]) * 100) / 100
         })
     }
+
+    const tSlideThumbStyle = css({
+        position: "absolute",
+        width: tSliderHandleRadius * 2,
+        height: tSliderHandleRadius * 2,
+        pointerEvents: "none",
+        backgroundColor: "transparent",
+        border: "3px solid black",
+        borderColor: "gray",
+        borderRadius: "50%",
+        top: 0
+    })
 
     return (
         <div css={css(VerticalFlex)}>
@@ -143,12 +170,15 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
             <p>スライダー上をドラッグして設定</p>
             {tSliderPixels.map((pixelData, index) => (
                 <div css={css(HorizontalFlex)} key={index}>
-                    <div css={{ height: "1em", width: tSliderWidth, margin: 5 }}
+                    <div css={{ height: tSliderHeight, width: tSliderWidth, margin: 5, position: "relative" }}
                         onMouseDown={(e) => { onSlide(e, index) }}
                         onMouseMove={(e) => { if (e.buttons === 1) onSlide(e, index) }}
                         onDragStart={(e) => e.preventDefault()}
                     >
-                        <ImageCanvas pixelData={pixelData} />
+                        <div css={css(InheritedSize, { position: "absolute" })}>
+                            <ImageCanvas pixelData={pixelData} />
+                        </div>
+                        <div css={css(tSlideThumbStyle, { left: tSliderThumbPositions[index] ?? 0 })} />
                     </div>
                     <input css={{ width: "3em", margin: 5 }}
                         value={tSliderValues[index] ?? 0}
