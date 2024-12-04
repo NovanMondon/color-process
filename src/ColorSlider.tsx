@@ -115,6 +115,10 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
 
     return (
         <div css={css(VerticalFlex)}>
+            <div css={css(HorizontalFlex)}>
+                <button onClick={() => setMode("RGB")}>RGB</button>
+                <button onClick={() => setMode("HSV")}>HSV</button>
+            </div>
             <p>スライダー上をドラッグして設定</p>
             {tSliderPixels.map((pixelData, index) => (
                 <div css={css(HorizontalFlex)} key={index}>
