@@ -28,16 +28,15 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
 
     // スライダー初期化処理
     useEffect(() => {
-        const tSliderPixels: PixelData[] = []
+        let tSliderPixels: PixelData[] = []
 
         switch (tMode) {
             case "RGB":
-                const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), 0, 0])
-                tSliderPixels.push(tRedSliderPixel)
-                const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, Math.round(x * 255), 0])
-                tSliderPixels.push(tGreenSliderPixel)
-                const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, 0, Math.round(x * 255)])
-                tSliderPixels.push(tBlueSliderPixel)
+                // const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), 0, 0])
+                // const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, Math.round(x * 255), 0])
+                // const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, 0, Math.round(x * 255)])
+                // tSliderPixels = [tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel]
+
                 if (!state.isColorSanitized()) {
                     console.log("Color not sanitized")
                     setSliderValues({ 0: 0, 1: 0, 2: 0 })
@@ -48,12 +47,11 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                 setSliderMins({ 0: 0, 1: 0, 2: 0 })
                 break
             case "HSV":
-                const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, 1, 1]))
-                tSliderPixels.push(tHueSliderPixel)
-                const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, x, 1]))
-                tSliderPixels.push(tSaturationSliderPixel)
-                const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, 0, x]))
-                tSliderPixels.push(tValueSliderPixel)
+                // const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, 1, 1]))
+                // const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, x, 1]))
+                // const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([0, 0, x]))
+                // tSliderPixels = [tHueSliderPixel, tSaturationSliderPixel, tValueSliderPixel]
+
                 if (state.color.length !== 3) {
                     setSliderValues({ 0: 0, 1: 0, 2: 0 })
                 } else {
@@ -82,6 +80,11 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                     if (Math.round(tSliderValues[i]) !== tSliderValues[i]) { setSliderValues({ ...tSliderValues, [i]: Math.round(tSliderValues[i]) }); return }
                     tRGB[i] = tSliderValues[i]
                 }
+
+                const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), tRGB[1], tRGB[2]])
+                const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], Math.round(x * 255), tRGB[2]])
+                const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], tRGB[1], Math.round(x * 255)])
+                setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
                 tColor = tRGB
                 break
             case "HSV":
@@ -92,10 +95,12 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                     if (tSliderValues[i] > tSliderMaxes[i]) { setSliderValues({ ...tSliderValues, [i]: tSliderMaxes[i] }); return }
                     tHSV[i] = tSliderValues[i]
                 }
-                tColor = colorUtil.HSV2RGB(tHSV)
 
+                tColor = colorUtil.HSV2RGB(tHSV)
+                const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, tHSV[1], tHSV[2]]))
                 const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], x, 1]))
-                setSliderPixels([tSliderPixels[0], tSaturationSliderPixel, tSliderPixels[2]])
+                const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], 0, x]))
+                setSliderPixels([tHueSliderPixel, tSaturationSliderPixel, tValueSliderPixel])
                 break
         }
         setState(state.update({ color: tColor }))
