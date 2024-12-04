@@ -1,6 +1,10 @@
+// RGB: [[0, 255], [0, 255], [0, 255]]
+// HSV: [(-inf, inf), [0, 1], [0, 1]]
+//
+
 export const colorUtil = {
     RGB2HSV: (aColor: number[]): number[] => {
-        const [r, g, b] = aColor
+        const [r, g, b] = aColor.map(x => x / 255)
         const max = Math.max(r, g, b)
         const min = Math.min(r, g, b)
         const v = max
@@ -10,7 +14,10 @@ export const colorUtil = {
     },
 
     HSV2RGB: (aColor: number[]): number[] => {
-        const [h, s, v] = aColor
+        let [h, s, v] = aColor
+        if (h >= 360) h -= 360
+        if (h < 0) h += 360
+
         const c = v * s
         const hp = h / 60
         const x = c * (1 - Math.abs(hp % 2 - 1))
