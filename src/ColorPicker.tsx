@@ -87,6 +87,7 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
         <>
             <div css={css(HorizontalFlex)}
                 onKeyDown={(e) => { if (e.key === '+') setZoom(tZoom + 0.1); if (e.key === '-') setZoom(tZoom - 0.1) }}
+                onPaste={(e) => { if (e.clipboardData.files.length > 0) setImageFile(e.clipboardData.files[0]) }}
                 tabIndex={0}
             >
                 <div css={{ height: 750, width: 750 }}>
