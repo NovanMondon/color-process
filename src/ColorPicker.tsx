@@ -7,12 +7,14 @@ import { ColorIndicator } from "./ColorIndicator"
 import { useEffect, useState } from "react"
 import { pixelUtil, PixelData } from "./pixelUtil"
 import { ImageCanvas } from "./ImageCanvas"
+import { ImageProcess } from "./imageProcess"
 
 
 export function ColorPicker({ state, setState }: { state: AppState, setState: SetAppState }) {
     const [tImageFile, setImageFile] = useState<File | null>(null)
     const [tImageData, setImageData] = useState<PixelData | null>(null)
     const [tZoom, setZoom] = useState(1)
+    const [tMagnifiedImageData, setMagnifiedImageData] = useState<PixelData | null>(null)
     const [tPointedColor, setPointedColor] = useState([0, 0, 0])
 
     // file => image
@@ -31,7 +33,7 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
         if (!state.image) return
         const tImageFileData = pixelUtil.Element2ImageData(state.image)
         if (!tImageFileData) return
-        const tImageData = zoomImageData(tImageFileData, tZoom)
+        const tImageData = ImageProcess.zoomImageData(tImageFileData, tZoom)
         setImageData(tImageData)
     }, [state.image, tZoom])
 
@@ -53,6 +55,32 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
         if (tX < 0 || tY < 0 || tX >= tImageData.width || tY >= tImageData.height) return
 
         setPointedColor(tImageData.data[tY][tX])
+
+        const tMagnifiedRegionWidth = 11
+        const tMagnifiedRegionHeight = 11
+        const tMagnifiedRegionData: PixelData = {
+            width: tMagnifiedRegionWidth,
+            height: tMagnifiedRegionHeight,
+            data: [],
+        }
+        for (let y = 0; y < tMagnifiedRegionHeight; y++) {
+            const tRow = []
+            for (let x = 0; x < tMagnifiedRegionWidth; x++) {
+                const tXOffset = x - Math.floor(tMagnifiedRegionWidth / 2)
+                const tYOffset = y - Math.floor(tMagnifiedRegionHeight / 2)
+                const tSourceX = tX + tXOffset
+                const tSourceY = tY + tYOffset
+                if (tSourceX < 0 || tSourceY < 0 || tSourceX >= tImageData.width || tSourceY >= tImageData.height) {
+                    tRow.push([0, 0, 0])
+                    continue
+                }
+                tRow.push(tImageData.data[tSourceY][tSourceX])
+            }
+            tMagnifiedRegionData.data.push(tRow)
+        }
+
+        const tMagnifiedImageData = ImageProcess.zoomImageData(tMagnifiedRegionData, 10)
+        setMagnifiedImageData(tMagnifiedImageData)
     }
 
     return (
@@ -80,6 +108,11 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
                 <div css={css(VerticalFlex, { padding: 10 })}>
                     <h3>Pointed Color</h3>
                     <ColorIndicator color={tPointedColor} />
+                    {tMagnifiedImageData &&
+                        <div css={{ width: 100, height: 100 }}>
+                            <ImageCanvas pixelData={tMagnifiedImageData} />
+                        </div>
+                    }
                     <div>
                         <p>+キーで拡大、-キーで縮小</p>
                     </div>
@@ -87,28 +120,4 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
             </div>
         </>
     )
-}
-
-function zoomImageData(aImageData: PixelData, aZoom: number): PixelData {
-    const tImageData: PixelData = {
-        width: Math.floor(aImageData.width * aZoom),
-        height: Math.floor(aImageData.height * aZoom),
-        data: [],
-    }
-    for (let y = 0; y < tImageData.height; y++) {
-        const tRow = []
-        for (let x = 0; x < tImageData.width; x++) {
-            const tSourceX = Math.floor(x / aZoom)
-            const tSourceY = Math.floor(y / aZoom)
-
-            if (tSourceX >= aImageData.width || tSourceY >= aImageData.height || tSourceX < 0 || tSourceY < 0) {
-                tRow.push([0, 0, 0])
-                continue
-            }
-            const tPixel = aImageData.data[tSourceY][tSourceX]
-            tRow.push(tPixel)
-        }
-        tImageData.data.push(tRow)
-    }
-    return tImageData
 }
