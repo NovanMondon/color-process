@@ -6,6 +6,7 @@ import { HorizontalFlex } from "./Styles"
 import { ColorIndicator } from "./ColorIndicator"
 import { useEffect, useState } from "react"
 import { pixelUtil, PixelData } from "./pixelUtil"
+import { ImageCanvas } from "./ImageCanvas"
 
 
 export function ColorPicker({ state, setState }: { state: AppState, setState: SetAppState }) {
@@ -56,13 +57,16 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
                         onDrop={(aEvent) => { aEvent.preventDefault(); setImageFile(aEvent.dataTransfer.files?.[0] || null) }}
                         onDragOver={(aEvent) => aEvent.preventDefault()}
                     >
-                        {state.image &&
-                            <img css={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                                src={state.image.src}
-                                alt="dropped"
-                                onClick={pickColor}
-                                onMouseMove={pointColor}
-                            />
+                        {tImageData &&
+                            // <img css={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                            //     src={state.image.src}
+                            //     alt="dropped"
+                            //     onClick={pickColor}
+                            //     onMouseMove={pointColor}
+                            // />
+                            <div css={{ width: tImageData.width, height: tImageData.height }} >
+                                <ImageCanvas pixelData={tImageData} />
+                            </div>
                         }
                     </div>
                 </div>
