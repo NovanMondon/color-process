@@ -58,13 +58,10 @@ export function ColorPicker({ state, setState }: { state: AppState, setState: Se
                         onDragOver={(aEvent) => aEvent.preventDefault()}
                     >
                         {tImageData &&
-                            // <img css={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                            //     src={state.image.src}
-                            //     alt="dropped"
-                            //     onClick={pickColor}
-                            //     onMouseMove={pointColor}
-                            // />
-                            <div css={{ width: tImageData.width, height: tImageData.height }} >
+                            <div css={{ width: tImageData.width, height: tImageData.height, pointerEvents: 'auto', cursor: 'pointer' }}
+                                onClick={pickColor}
+                                onMouseMove={pointColor}
+                            >
                                 <ImageCanvas pixelData={tImageData} />
                             </div>
                         }
