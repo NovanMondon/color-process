@@ -12,7 +12,7 @@ type AppMode = "ColorPicker" | "ColorSlider"
 
 function App() {
   const [tState, setState] = useState(new AppState())
-  const [tMode, setMode] = useState<AppMode>("ColorPicker")
+  const [tMode, setMode] = useState<AppMode>("ColorSlider")
 
   // Debug
   useEffect(() => {

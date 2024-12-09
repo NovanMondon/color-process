@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
 import { colorUtil } from "./colorUtil"
 import { ImageCanvas } from "./ImageCanvas"
+import { ColorSliderRGB } from "./ColorSliderRGB"
 
 type ColorSliderMode = "RGB" | "HSV"
 
@@ -169,7 +170,8 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                 </div>
             </div>
             <p>スライダー上をドラッグして設定</p>
-            {tSliderPixels.map((pixelData, index) => (
+            <ColorSliderRGB state={state} setState={setState} flagRealtime={tFlagRealtime} />
+            {/* {tSliderPixels.map((pixelData, index) => (
                 <div css={css(HorizontalFlex)} key={index}>
                     <div css={{ height: tSliderHeight, width: tSliderWidth, margin: 5, position: "relative" }}
                         onMouseDown={(e) => { onSlide(e, index) }}
@@ -190,7 +192,7 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                         }}
                     />
                 </div>
-            ))}
+            ))} */}
         </div>
     )
 }
