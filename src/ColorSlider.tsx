@@ -114,7 +114,7 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
     }, [tSliderValues, tFlagRealtime])
 
     const tSliderWidth = 720
-    const tSliderHeight = 20
+    const tSliderHeight = 16
     const tSliderHandleRadius = 8
 
     // スライダーハンドル移動処理
@@ -142,11 +142,12 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
         width: tSliderHandleRadius * 2,
         height: tSliderHandleRadius * 2,
         pointerEvents: "none",
-        backgroundColor: "transparent",
+        backgroundColor: "white",
         border: "3px solid black",
-        borderColor: "gray",
+        borderColor: "black",
         borderRadius: "50%",
-        top: 0
+        top: 0,
+        boxSizing: "border-box",
     })
 
     return (
