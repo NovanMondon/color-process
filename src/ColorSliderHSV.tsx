@@ -4,7 +4,7 @@ import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
 import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
-import { HorizontalFlex, InheritedSize } from "./Styles"
+import { HorizontalFlex, InheritedSize, SliderHandleRadius, SliderHeight, SliderWidth, SlideThumbStyle } from "./Styles"
 import { ImageCanvas } from "./ImageCanvas"
 import { colorUtil } from "./colorUtil"
 import { MathUtil } from "./mathUtil"
@@ -74,18 +74,13 @@ export const ColorSliderHSV = ({ state, setState, flagRealtime }: { state: AppSt
         setState(state.update({ color: tColor }))
     }, [tSliderValues, flagRealtime])
 
-
-    const tSliderWidth = 720
-    const tSliderHeight = 16
-    const tSliderHandleRadius = 8
-
     // スライダーハンドル移動処理
     useEffect(() => {
         const tThumbPositions: { [index: number]: number } = {}
         for (let tKey in tSliderValues) {
             if (tSliderValues[tKey] === undefined) continue
-            if (tKey === "0") tThumbPositions[tKey] = tSliderValues[tKey] / 360 * tSliderWidth - tSliderHandleRadius
-            else tThumbPositions[tKey] = tSliderValues[tKey] * tSliderWidth - tSliderHandleRadius
+            if (tKey === "0") tThumbPositions[tKey] = tSliderValues[tKey] / 360 * SliderWidth - SliderHandleRadius
+            else tThumbPositions[tKey] = tSliderValues[tKey] * SliderWidth - SliderHandleRadius
         }
         setSliderThumbPositions(tThumbPositions)
     }, [tSliderValues])
@@ -96,28 +91,15 @@ export const ColorSliderHSV = ({ state, setState, flagRealtime }: { state: AppSt
         const tX = e.clientX - tRect.left
         setSliderValues({
             ...tSliderValues,
-            [index]: index === 0 ? Math.round(tX / tSliderWidth * 360) : MathUtil.roundTo(tX / tSliderWidth, 2)
+            [index]: index === 0 ? Math.round(tX / SliderWidth * 360) : MathUtil.roundTo(tX / SliderWidth, 2)
         })
     }
-
-    const tSlideThumbStyle = css({
-        position: "absolute",
-        width: tSliderHandleRadius * 2,
-        height: tSliderHandleRadius * 2,
-        pointerEvents: "none",
-        backgroundColor: "white",
-        border: "3px solid black",
-        borderColor: "black",
-        borderRadius: "50%",
-        top: 0,
-        boxSizing: "border-box",
-    })
 
     return (
         <>
             {tSliderPixels.map((tPixelData, tIndex) => (
                 <div css={css(HorizontalFlex)} key={tIndex}>
-                    <div css={{ height: tSliderHeight, width: tSliderWidth, margin: 5, position: "relative" }}
+                    <div css={{ height: SliderHeight, width: SliderWidth, margin: 5, position: "relative" }}
                         onMouseDown={(e) => { onSlide(e, tIndex) }}
                         onMouseMove={(e) => { if (e.buttons === 1) onSlide(e, tIndex) }}
                         onDragStart={(e) => e.preventDefault()}
@@ -125,7 +107,7 @@ export const ColorSliderHSV = ({ state, setState, flagRealtime }: { state: AppSt
                         <div css={css(InheritedSize, { position: "absolute" })}>
                             <ImageCanvas pixelData={tPixelData} />
                         </div>
-                        <div css={css(tSlideThumbStyle, { left: tSliderThumbPositions[tIndex] ?? 0 })} />
+                        <div css={css(SlideThumbStyle, { left: tSliderThumbPositions[tIndex] ?? 0 })} />
                     </div>
                     <input css={{ width: "3em", margin: 5 }}
                         value={tSliderValues[tIndex] ?? 0}
