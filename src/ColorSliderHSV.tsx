@@ -1,13 +1,10 @@
 /** @jsxImportSource @emotion/react */
 
-import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
 import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
-import { HorizontalFlex, InheritedSize, SliderHandleRadius, SliderHeight, SliderWidth, SlideThumbStyle } from "./Styles"
 import { ImageCanvas } from "./ImageCanvas"
 import { colorUtil } from "./colorUtil"
-import { MathUtil } from "./mathUtil"
 import { Slider1D } from "./Slider1D"
 
 
