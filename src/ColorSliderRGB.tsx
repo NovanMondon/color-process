@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
 
-import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
 import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
@@ -9,7 +8,7 @@ import { ImageCanvas } from "./ImageCanvas"
 
 export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppState, setState: SetAppState, flagRealtime: boolean }) => {
     const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
-    const [tSliderValues, setSliderValues] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
+    const [tRGB, setRGB] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
 
     // 初期化処理
     useEffect(() => {
@@ -17,32 +16,31 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
         if (!state.isColorSanitized()) {
             console.log("Color not sanitized")
         } else {
-            setSliderValues({ 0: state.color[0], 1: state.color[1], 2: state.color[2] })
+            setRGB({ 0: state.color[0], 1: state.color[1], 2: state.color[2] })
         }
     }, [])
 
     // スライダー更新処理
     useEffect(() => {
+        // console.log("RGB: ", tRGB)
         // 値のチェック
-        let tRGB = [0, 0, 0]
         for (let i = 0; i < 3; i++) {
-            if (!tSliderValues[i] && tSliderValues[i] !== 0) {
-                setSliderValues({ ...tSliderValues, [i]: 0 })
+            if (!tRGB[i] && tRGB[i] !== 0) {
+                setRGB({ ...tRGB, [i]: 0 })
                 return
             }
-            if (tSliderValues[i] < 0) {
-                setSliderValues({ ...tSliderValues, [i]: 0 })
+            if (tRGB[i] < 0) {
+                setRGB({ ...tRGB, [i]: 0 })
                 return
             }
-            if (tSliderValues[i] > 255) {
-                setSliderValues({ ...tSliderValues, [i]: 255 })
+            if (tRGB[i] > 255) {
+                setRGB({ ...tRGB, [i]: 255 })
                 return
             }
-            if (Math.round(tSliderValues[i]) !== tSliderValues[i]) {
-                setSliderValues({ ...tSliderValues, [i]: Math.round(tSliderValues[i]) })
+            if (Math.round(tRGB[i]) !== tRGB[i]) {
+                setRGB({ ...tRGB, [i]: Math.round(tRGB[i]) })
                 return
             }
-            tRGB[i] = tSliderValues[i]
         }
 
         // スライダー画像の更新
@@ -59,22 +57,20 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
         }
 
         // 色の更新
-        setState(state.update({ color: tRGB }))
-    }, [tSliderValues, flagRealtime])
+        setState(state.update({ color: [tRGB[0], tRGB[1], tRGB[2]] }))
+    }, [tRGB, flagRealtime])
 
     return (
         <>
-            {tSliderPixels.map((tPixelData, tIndex) => (
-                <Slider1D
-                    sliderValue={tSliderValues[tIndex] ?? 0}
-                    sliderMin={0}
-                    sliderMax={255}
-                    sliderStep={1}
-                    setSliderValue={(v) => setSliderValues({ ...tSliderValues, [tIndex]: v })}
-                >
-                    <ImageCanvas pixelData={tPixelData} />
-                </Slider1D>
-            ))}
+            <Slider1D value={tRGB[0] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 0: v })}>
+                <ImageCanvas pixelData={tSliderPixels[0]} />
+            </Slider1D>
+            <Slider1D value={tRGB[1] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 1: v })}>
+                <ImageCanvas pixelData={tSliderPixels[1]} />
+            </Slider1D>
+            <Slider1D value={tRGB[2] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 2: v })}>
+                <ImageCanvas pixelData={tSliderPixels[2]} />
+            </Slider1D>
         </>
     )
 }

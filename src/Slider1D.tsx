@@ -6,30 +6,30 @@ import { useEffect, useState } from "react"
 import { MathUtil } from "./mathUtil"
 
 export type Slider1DProps = {
-    setSliderValue: ((v: number) => void)
-    sliderValue: number
-    sliderMin: number
-    sliderMax: number
-    sliderStep: number
+    setValue: ((v: number) => void)
+    value: number
+    min: number
+    max: number
+    step: number
     children: React.ReactNode
 }
 
 export const Slider1D = (
-    { setSliderValue, sliderValue, sliderMin, sliderMax, sliderStep, children }: Slider1DProps) => {
+    { setValue, value: aValue, min: aMin, max: aMax, step: aStep, children: aChildren }: Slider1DProps) => {
     const [tSliderThumbPosition, setSliderThumbPosition] = useState(0)
-
-    // スライダーハンドル移動処理
-    useEffect(() => {
-        const tSliderThumbPosition = (sliderValue - sliderMin) / (sliderMax - sliderMin) * SliderWidth - SliderHandleRadius
-        setSliderThumbPosition(tSliderThumbPosition)
-    }, [sliderValue])
 
     const onSlide = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         const tElement = e.currentTarget as HTMLElement
         const tRect = tElement.getBoundingClientRect()
         const tX = e.clientX - tRect.left
-        setSliderValue(MathUtil.roundToWithStep(tX / SliderWidth * (sliderMax - sliderMin) + sliderMin, sliderStep))
+        setValue(MathUtil.roundToWithStep(tX / SliderWidth * (aMax - aMin) + aMin, aStep))
     }
+
+    // スライダーハンドル移動処理
+    useEffect(() => {
+        const tSliderThumbPosition = (aValue - aMin) / (aMax - aMin) * SliderWidth - SliderHandleRadius
+        setSliderThumbPosition(tSliderThumbPosition)
+    }, [aValue])
 
     return (
         <>
@@ -40,16 +40,16 @@ export const Slider1D = (
                     onDragStart={(e) => e.preventDefault()}
                 >
                     <div css={css(InheritedSize, { position: "absolute" })}>
-                        {children}
+                        {aChildren}
                     </div>
                     <div css={css(SlideThumbStyle, { left: tSliderThumbPosition })} />
                 </div>
                 <input css={{ width: "3em", margin: 5 }}
-                    value={sliderValue}
+                    value={aValue}
                     onChange={(e) => {
                         const tValue = parseInt(e.target.value)
                         if (isNaN(tValue)) return
-                        setSliderValue(tValue)
+                        setValue(tValue)
                     }}
                 />
             </div>

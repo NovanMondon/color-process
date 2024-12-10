@@ -8,12 +8,12 @@ import { HorizontalFlex, InheritedSize, SliderHandleRadius, SliderHeight, Slider
 import { ImageCanvas } from "./ImageCanvas"
 import { colorUtil } from "./colorUtil"
 import { MathUtil } from "./mathUtil"
+import { Slider1D } from "./Slider1D"
 
 
 export const ColorSliderHSV = ({ state, setState, flagRealtime }: { state: AppState, setState: SetAppState, flagRealtime: boolean }) => {
     const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
-    const [tSliderValues, setSliderValues] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
-    const [tSliderThumbPositions, setSliderThumbPositions] = useState<{ [index: number]: number }>({})
+    const [tHSV, setHSV] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
 
     // 初期化処理
     useEffect(() => {
@@ -21,45 +21,44 @@ export const ColorSliderHSV = ({ state, setState, flagRealtime }: { state: AppSt
             console.log("Color not sanitized")
         } else {
             const tHSV = colorUtil.RGB2HSV(state.color)
-            setSliderValues({ 0: tHSV[0], 1: tHSV[1], 2: tHSV[2] })
+            setHSV({ 0: tHSV[0], 1: tHSV[1], 2: tHSV[2] })
         }
     }, [])
 
     // スライダー更新処理
     useEffect(() => {
+        // console.log("HSV: ", [tHSV[0], tHSV[1], tHSV[2]])
         // 値のチェック
-        let tHSV = [0, 0, 0]
         for (let i = 0; i < 3; i++) {
             if (i === 0) { // Hue
-                if (tSliderValues[i] < 0) {
-                    setSliderValues({ ...tSliderValues, [i]: 0 })
+                if (tHSV[i] < 0) {
+                    setHSV({ ...tHSV, [i]: 0 })
                     return
                 }
-                if (tSliderValues[i] > 360) {
-                    setSliderValues({ ...tSliderValues, [i]: 360 })
+                if (tHSV[i] > 360) {
+                    setHSV({ ...tHSV, [i]: 360 })
                     return
                 }
-                if (Math.round(tSliderValues[i]) !== tSliderValues[i]) {
-                    setSliderValues({ ...tSliderValues, [i]: Math.round(tSliderValues[i]) })
+                if (Math.round(tHSV[i]) !== tHSV[i]) {
+                    setHSV({ ...tHSV, [i]: Math.round(tHSV[i]) })
                     return
                 }
             } else { // Saturation, Value
-                if (tSliderValues[i] < 0) {
-                    setSliderValues({ ...tSliderValues, [i]: 0 })
+                if (tHSV[i] < 0) {
+                    setHSV({ ...tHSV, [i]: 0 })
                     return
                 }
-                if (tSliderValues[i] > 1) {
-                    setSliderValues({ ...tSliderValues, [i]: 1 })
+                if (tHSV[i] > 1) {
+                    setHSV({ ...tHSV, [i]: 1 })
                     return
                 }
             }
-            tHSV[i] = tSliderValues[i]
         }
 
         // スライダー画像の更新
         if (flagRealtime) {
             const tHueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([x * 360, tHSV[1], tHSV[2]]))
-            const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], x,  tHSV[2]]))
+            const tSaturationSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], x, tHSV[2]]))
             const tValueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => colorUtil.HSV2RGB([tHSV[0], tHSV[1], x]))
             setSliderPixels([tHueSliderPixel, tSaturationSliderPixel, tValueSliderPixel])
         } else {
@@ -70,55 +69,21 @@ export const ColorSliderHSV = ({ state, setState, flagRealtime }: { state: AppSt
         }
 
         // 色の更新
-        const tColor = colorUtil.HSV2RGB(tHSV)
+        const tColor = colorUtil.HSV2RGB([tHSV[0], tHSV[1], tHSV[2]])
         setState(state.update({ color: tColor }))
-    }, [tSliderValues, flagRealtime])
-
-    // スライダーハンドル移動処理
-    useEffect(() => {
-        const tThumbPositions: { [index: number]: number } = {}
-        for (let tKey in tSliderValues) {
-            if (tSliderValues[tKey] === undefined) continue
-            if (tKey === "0") tThumbPositions[tKey] = tSliderValues[tKey] / 360 * SliderWidth - SliderHandleRadius
-            else tThumbPositions[tKey] = tSliderValues[tKey] * SliderWidth - SliderHandleRadius
-        }
-        setSliderThumbPositions(tThumbPositions)
-    }, [tSliderValues])
-
-    const onSlide = (e: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
-        const tElement = e.currentTarget as HTMLElement
-        const tRect = tElement.getBoundingClientRect()
-        const tX = e.clientX - tRect.left
-        setSliderValues({
-            ...tSliderValues,
-            [index]: index === 0 ? Math.round(tX / SliderWidth * 360) : MathUtil.roundTo(tX / SliderWidth, 2)
-        })
-    }
+    }, [tHSV, flagRealtime])
 
     return (
         <>
-            {tSliderPixels.map((tPixelData, tIndex) => (
-                <div css={css(HorizontalFlex)} key={tIndex}>
-                    <div css={{ height: SliderHeight, width: SliderWidth, margin: 5, position: "relative" }}
-                        onMouseDown={(e) => { onSlide(e, tIndex) }}
-                        onMouseMove={(e) => { if (e.buttons === 1) onSlide(e, tIndex) }}
-                        onDragStart={(e) => e.preventDefault()}
-                    >
-                        <div css={css(InheritedSize, { position: "absolute" })}>
-                            <ImageCanvas pixelData={tPixelData} />
-                        </div>
-                        <div css={css(SlideThumbStyle, { left: tSliderThumbPositions[tIndex] ?? 0 })} />
-                    </div>
-                    <input css={{ width: "3em", margin: 5 }}
-                        value={tSliderValues[tIndex] ?? 0}
-                        onChange={(e) => {
-                            const tValue = parseInt(e.target.value)
-                            if (isNaN(tValue)) return
-                            setSliderValues({ ...tSliderValues, [tIndex]: tValue })
-                        }}
-                    />
-                </div>
-            ))}
+            <Slider1D value={tHSV[0] ?? 0} min={0} max={360} step={1} setValue={(v) => setHSV({ ...tHSV, 0: v })}>
+                <ImageCanvas pixelData={tSliderPixels[0]} />
+            </Slider1D>
+            <Slider1D value={tHSV[1] ?? 0} min={0} max={1} step={0.01} setValue={(v) => setHSV({ ...tHSV, 1: v })}>
+                <ImageCanvas pixelData={tSliderPixels[1]} />
+            </Slider1D>
+            <Slider1D value={tHSV[2] ?? 0} min={0} max={1} step={0.01} setValue={(v) => setHSV({ ...tHSV, 2: v })}>
+                <ImageCanvas pixelData={tSliderPixels[2]} />
+            </Slider1D>
         </>
     )
 }
