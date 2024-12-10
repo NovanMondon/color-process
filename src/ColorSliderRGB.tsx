@@ -4,14 +4,12 @@ import { css } from "@emotion/react"
 import { AppState, SetAppState } from "./appState"
 import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
-import { HorizontalFlex, InheritedSize } from "./Styles"
-import { ImageCanvas } from "./ImageCanvas"
 import { Slider1D } from "./Slider1D"
+import { ImageCanvas } from "./ImageCanvas"
 
 export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppState, setState: SetAppState, flagRealtime: boolean }) => {
     const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
     const [tSliderValues, setSliderValues] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
-    const [tSliderThumbPositions, setSliderThumbPositions] = useState<{ [index: number]: number }>({})
 
     // 初期化処理
     useEffect(() => {
@@ -64,53 +62,18 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
         setState(state.update({ color: tRGB }))
     }, [tSliderValues, flagRealtime])
 
-    const tSliderWidth = 720
-    const tSliderHeight = 16
-    const tSliderHandleRadius = 8
-
-    // スライダーハンドル移動処理
-    useEffect(() => {
-        const tThumbPositions: { [index: number]: number } = {}
-        for (let tKey in tSliderValues) {
-            if (tSliderValues[tKey] === undefined) continue
-            tThumbPositions[tKey] = tSliderValues[tKey] / 255 * tSliderWidth - tSliderHandleRadius
-        }
-        setSliderThumbPositions(tThumbPositions)
-    }, [tSliderValues])
-
-    const onSlide = (e: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
-        const tElement = e.currentTarget as HTMLElement
-        const tRect = tElement.getBoundingClientRect()
-        const tX = e.clientX - tRect.left
-        setSliderValues({
-            ...tSliderValues,
-            [index]: Math.round(tX / tSliderWidth * 255)
-        })
-    }
-
-    const tSlideThumbStyle = css({
-        position: "absolute",
-        width: tSliderHandleRadius * 2,
-        height: tSliderHandleRadius * 2,
-        pointerEvents: "none",
-        backgroundColor: "white",
-        border: "3px solid black",
-        borderColor: "black",
-        borderRadius: "50%",
-        top: 0,
-        boxSizing: "border-box",
-    })
-
     return (
         <>
             {tSliderPixels.map((tPixelData, tIndex) => (
                 <Slider1D
-                    pixelData={tPixelData}
                     sliderValue={tSliderValues[tIndex] ?? 0}
                     sliderMin={0}
                     sliderMax={255}
+                    sliderStep={1}
                     setSliderValue={(v) => setSliderValues({ ...tSliderValues, [tIndex]: v })}
-                />
+                >
+                    <ImageCanvas pixelData={tPixelData} />
+                </Slider1D>
             ))}
         </>
     )

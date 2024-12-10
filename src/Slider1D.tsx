@@ -3,13 +3,19 @@
 import { css } from "@emotion/react"
 import { HorizontalFlex, InheritedSize, SliderHandleRadius, SliderHeight, SliderWidth, SlideThumbStyle } from "./Styles"
 import { useEffect, useState } from "react"
-import { ImageCanvas } from "./ImageCanvas"
-import { PixelData } from "./pixelUtil"
+import { MathUtil } from "./mathUtil"
+
+export type Slider1DProps = {
+    setSliderValue: ((v: number) => void)
+    sliderValue: number
+    sliderMin: number
+    sliderMax: number
+    sliderStep: number
+    children: React.ReactNode
+}
 
 export const Slider1D = (
-    { setSliderValue, sliderValue, sliderMin, sliderMax, pixelData }:
-        { setSliderValue: ((v: number) => void), sliderValue: number, sliderMin: number, sliderMax: number, pixelData: PixelData }
-) => {
+    { setSliderValue, sliderValue, sliderMin, sliderMax, sliderStep, children }: Slider1DProps) => {
     const [tSliderThumbPosition, setSliderThumbPosition] = useState(0)
 
     // スライダーハンドル移動処理
@@ -22,7 +28,7 @@ export const Slider1D = (
         const tElement = e.currentTarget as HTMLElement
         const tRect = tElement.getBoundingClientRect()
         const tX = e.clientX - tRect.left
-        setSliderValue(Math.round(tX / SliderWidth * (sliderMax - sliderMin)) + sliderMin)
+        setSliderValue(MathUtil.roundToWithStep(tX / SliderWidth * (sliderMax - sliderMin) + sliderMin, sliderStep))
     }
 
     return (
@@ -34,7 +40,7 @@ export const Slider1D = (
                     onDragStart={(e) => e.preventDefault()}
                 >
                     <div css={css(InheritedSize, { position: "absolute" })}>
-                        <ImageCanvas pixelData={pixelData} />
+                        {children}
                     </div>
                     <div css={css(SlideThumbStyle, { left: tSliderThumbPosition })} />
                 </div>
