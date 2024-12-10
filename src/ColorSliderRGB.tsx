@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
 import { HorizontalFlex, InheritedSize } from "./Styles"
 import { ImageCanvas } from "./ImageCanvas"
+import { Slider1D } from "./Slider1D"
 
 export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppState, setState: SetAppState, flagRealtime: boolean }) => {
     const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
@@ -103,26 +104,13 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
     return (
         <>
             {tSliderPixels.map((tPixelData, tIndex) => (
-                <div css={css(HorizontalFlex)} key={tIndex}>
-                    <div css={{ height: tSliderHeight, width: tSliderWidth, margin: 5, position: "relative" }}
-                        onMouseDown={(e) => { onSlide(e, tIndex) }}
-                        onMouseMove={(e) => { if (e.buttons === 1) onSlide(e, tIndex) }}
-                        onDragStart={(e) => e.preventDefault()}
-                    >
-                        <div css={css(InheritedSize, { position: "absolute" })}>
-                            <ImageCanvas pixelData={tPixelData} />
-                        </div>
-                        <div css={css(tSlideThumbStyle, { left: tSliderThumbPositions[tIndex] ?? 0 })} />
-                    </div>
-                    <input css={{ width: "3em", margin: 5 }}
-                        value={tSliderValues[tIndex] ?? 0}
-                        onChange={(e) => {
-                            const tValue = parseInt(e.target.value)
-                            if (isNaN(tValue)) return
-                            setSliderValues({ ...tSliderValues, [tIndex]: tValue })
-                        }}
-                    />
-                </div>
+                <Slider1D
+                    pixelData={tPixelData}
+                    sliderValue={tSliderValues[tIndex] ?? 0}
+                    sliderMin={0}
+                    sliderMax={255}
+                    setSliderValue={(v) => setSliderValues({ ...tSliderValues, [tIndex]: v })}
+                />
             ))}
         </>
     )
