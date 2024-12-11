@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from "@emotion/react"
-import { HorizontalFlex, InheritedSize, SliderHandleRadius, SliderHeight, SliderWidth, SlideThumbStyle } from "./Styles"
+import { HorizontalFlex, InheritedSize, SliderHandleRadius, SlideThumbStyle } from "./Styles"
 import { useEffect, useState } from "react"
 import { MathUtil } from "./mathUtil"
 
@@ -14,8 +14,12 @@ export type Slider1DProps = {
     children: React.ReactNode
 }
 
+const SliderWidth = 720
+const SliderHeight = 16
+
 export const Slider1D = (
-    { setValue, value: aValue, min: aMin, max: aMax, step: aStep, children: aChildren }: Slider1DProps) => {
+    { setValue, value: aValue, min: aMin, max: aMax, step: aStep, children: aChildren }: Slider1DProps
+) => {
     const [tSliderThumbPosition, setSliderThumbPosition] = useState(0)
 
     const onSlide = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {

@@ -5,10 +5,12 @@ import { useEffect, useState } from "react"
 import { PixelData, pixelUtil } from "./pixelUtil"
 import { Slider1D } from "./Slider1D"
 import { ImageCanvas } from "./ImageCanvas"
+import { Slider2D } from "./Slider2D"
 
 export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppState, setState: SetAppState, flagRealtime: boolean }) => {
     const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
     const [tRGB, setRGB] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
+    const [tTest2D, setTest2D] = useState<[number, number]>([0, 0])
 
     // 初期化処理
     useEffect(() => {
@@ -71,6 +73,9 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
             <Slider1D value={tRGB[2] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 2: v })}>
                 <ImageCanvas pixelData={tSliderPixels[2]} />
             </Slider1D>
+            <Slider2D value={tTest2D} min={[0, 0]} max={[1, 1]} step={[0.01, 0.01]} setValue={(v) => setTest2D(v)}>
+                <div>2D</div>
+            </Slider2D>
         </>
     )
 }

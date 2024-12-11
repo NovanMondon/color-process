@@ -25,8 +25,6 @@ export const ColorWeak = css({
     backgroundColor: '#ddd',
 })
 
-export const SliderWidth = 720
-export const SliderHeight = 16
 export const SliderHandleRadius = 8
 
 export const SlideThumbStyle = css({
