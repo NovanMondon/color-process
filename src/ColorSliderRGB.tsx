@@ -11,6 +11,7 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
     const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
     const [tRGB, setRGB] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
     const [tTest2D, setTest2D] = useState<[number, number]>([0, 0])
+    const [t2DSliderPixels, set2DSliderPixels] = useState<PixelData[]>([])
 
     // 初期化処理
     useEffect(() => {
@@ -26,26 +27,33 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
     useEffect(() => {
         // console.log("RGB: ", tRGB)
         // 値のチェック
-        for (let i = 0; i < 3; i++) {
-            if (!tRGB[i] && tRGB[i] !== 0) {
-                setRGB({ ...tRGB, [i]: 0 })
-                return
-            }
-            if (tRGB[i] < 0) {
-                setRGB({ ...tRGB, [i]: 0 })
-                return
-            }
-            if (tRGB[i] > 255) {
-                setRGB({ ...tRGB, [i]: 255 })
-                return
-            }
-            if (Math.round(tRGB[i]) !== tRGB[i]) {
-                setRGB({ ...tRGB, [i]: Math.round(tRGB[i]) })
-                return
-            }
+        const [flag, tNewRGB] = normalizeRGB([tRGB[0], tRGB[1], tRGB[2]])
+        if (flag) {
+            setRGB({ 0: tNewRGB[0], 1: tNewRGB[1], 2: tNewRGB[2] })
+            return
         }
 
-        // スライダー画像の更新
+        // 色の更新
+        setState(state.update({ color: [tRGB[0], tRGB[1], tRGB[2]] }))
+    }, [tRGB, flagRealtime])
+
+    // 2Dスライダー更新処理
+    useEffect(() => {
+        // 値のチェック
+        const tRGB_ = { 0: tTest2D[0], 1: tTest2D[1], 2: tRGB[2] }
+        const [flag, tNewRGB] = normalizeRGB([tRGB_[0], tRGB_[1], tRGB_[2]])
+        if (flag) {
+            setTest2D([tNewRGB[0], tNewRGB[1]])
+            return
+        }
+
+        // 値の更新
+        setRGB(tRGB_)
+    }, [tTest2D, flagRealtime])
+
+    // スライダー画像の更新
+    useEffect(() => {
+        // 1Dスライダー
         if (flagRealtime) {
             const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), tRGB[1], tRGB[2]])
             const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], Math.round(x * 255), tRGB[2]])
@@ -58,8 +66,14 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
             setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
         }
 
-        // 色の更新
-        setState(state.update({ color: [tRGB[0], tRGB[1], tRGB[2]] }))
+        // 2Dスライダー
+        if (flagRealtime) {
+            const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => [Math.round(x * 255), Math.round(y * 255), tRGB[2]])
+            set2DSliderPixels([t2DSliderPixel])
+        } else {
+            const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => [Math.round(x * 255), Math.round(y * 255), 0])
+            set2DSliderPixels([t2DSliderPixel])
+        }
     }, [tRGB, flagRealtime])
 
     return (
@@ -73,9 +87,30 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
             <Slider1D value={tRGB[2] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 2: v })}>
                 <ImageCanvas pixelData={tSliderPixels[2]} />
             </Slider1D>
-            <Slider2D value={tTest2D} min={[0, 0]} max={[1, 1]} step={[0.01, 0.01]} setValue={(v) => setTest2D(v)}>
-                <div>2D</div>
+            <Slider2D value={tTest2D} min={[0, 0]} max={[255, 255]} step={[1, 1]} setValue={(v) => setTest2D(v)}>
+                <ImageCanvas pixelData={t2DSliderPixels[0]} />
             </Slider2D>
         </>
     )
+}
+
+function normalizeRGB(rgb: number[]): [boolean, number[]] {
+    if (rgb.length !== 3) {
+        return [true, [0, 0, 0]]
+    }
+    let tFlag = false
+    let tRGB = [...rgb]
+    for (let i = 0; i < 3; i++) {
+        if (rgb[i] < 0) {
+            tRGB[i] = 0
+            tFlag = true
+        } else if (rgb[i] > 255) {
+            tRGB[i] = 255
+            tFlag = true
+        } else if (Math.floor(rgb[i]) !== rgb[i]) {
+            tRGB[i] = Math.round(rgb[i])
+            tFlag = true
+        }
+    }
+    return [tFlag, tRGB]
 }
