@@ -9,8 +9,13 @@ import { Slider2D } from "./Slider2D"
 import { HorizontalFlex } from "./Styles"
 import { css } from "@emotion/react"
 
+const RGB_MAX = [255, 255, 255]
+const RGB_MIN = [0, 0, 0]
+const RGB_STEP = [1, 1, 1]
+const RGB_INIT = { 0: 0, 1: 0, 2: 0 }
+
 export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppState, setState: SetAppState, flagRealtime: boolean }) => {
-    const [tRGB, setRGB] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
+    const [tRGB, setRGB] = useState<{ [index: number]: number }>(RGB_INIT)
 
     const [t2DTarget, set2DTarget] = useState<[number, number]>([-1, -1])
     const [tValue2D, setValue2D] = useState<[number, number]>([0, 0])
@@ -68,27 +73,37 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
     useEffect(() => {
         // 1Dスライダー
         if (flagRealtime) {
-            const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), tRGB[1], tRGB[2]])
-            const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], Math.round(x * 255), tRGB[2]])
-            const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [tRGB[0], tRGB[1], Math.round(x * 255)])
-            setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
+            let tPixels = []
+            for (let i = 0; i < 3; i++) {
+                tPixels.push(pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => {
+                    const tRGB_ = { ...tRGB, [i]: x * RGB_MAX[i] }
+                    return [tRGB_[0], tRGB_[1], tRGB_[2]]
+                })
+                )
+            }
+            setSliderPixels(tPixels)
         } else {
-            const tRedSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [Math.round(x * 255), 0, 0])
-            const tGreenSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, Math.round(x * 255), 0])
-            const tBlueSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => [0, 0, Math.round(x * 255)])
-            setSliderPixels([tRedSliderPixel, tGreenSliderPixel, tBlueSliderPixel])
+            let tPixels = []
+            for (let i = 0; i < 3; i++) {
+                tPixels.push(pixelUtil.GeneratePixelFromFunc(300, 1, (x, _) => {
+                    const tRGB_ = { ...RGB_INIT, [i]: x * RGB_MAX[i] }
+                    return [tRGB_[0], tRGB_[1], tRGB_[2]]
+                })
+                )
+            }
+            setSliderPixels(tPixels)
         }
 
         // 2Dスライダー
         if (flagRealtime) {
             const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => {
-                const tRGB_ = { ...tRGB, [t2DTarget[0]]: x * 255, [t2DTarget[1]]: y * 255 }
+                const tRGB_ = { ...tRGB, [t2DTarget[0]]: x * RGB_MAX[t2DTarget[0]], [t2DTarget[1]]: y * RGB_MAX[t2DTarget[1]] }
                 return [tRGB_[0], tRGB_[1], tRGB_[2]]
             })
             set2DSliderPixels([t2DSliderPixel])
         } else {
             const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => {
-                const tRGB_ = { ...tRGB, [t2DTarget[0]]: x * 255, [t2DTarget[1]]: y * 255 }
+                const tRGB_ = { ...RGB_INIT, [t2DTarget[0]]: x * RGB_MAX[t2DTarget[0]], [t2DTarget[1]]: y * RGB_MAX[t2DTarget[1]] }
                 return [tRGB_[0], tRGB_[1], tRGB_[2]]
             })
             set2DSliderPixels([t2DSliderPixel])
@@ -137,7 +152,12 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
                 </label>
             </div>
             {t2DTarget[0] >= 0 && t2DTarget[1] >= 0 && t2DTarget[0] !== t2DTarget[1] && (
-                <Slider2D value={tValue2D} min={[0, 0]} max={[255, 255]} step={[1, 1]} setValue={(v) => setValue2D(v)}>
+                <Slider2D
+                    value={tValue2D}
+                    min={[RGB_MIN[t2DTarget[0]], RGB_MIN[t2DTarget[1]]]}
+                    max={[RGB_MAX[t2DTarget[0]], RGB_MAX[t2DTarget[1]]]}
+                    step={[RGB_STEP[t2DTarget[0]], RGB_STEP[t2DTarget[1]]]}
+                    setValue={(v) => setValue2D(v)}>
                     <ImageCanvas pixelData={t2DSliderPixels[0]} />
                 </Slider2D>
             )}
