@@ -6,11 +6,16 @@ import { PixelData, pixelUtil } from "./pixelUtil"
 import { Slider1D } from "./Slider1D"
 import { ImageCanvas } from "./ImageCanvas"
 import { Slider2D } from "./Slider2D"
+import { HorizontalFlex } from "./Styles"
+import { css } from "@emotion/react"
 
 export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppState, setState: SetAppState, flagRealtime: boolean }) => {
-    const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
     const [tRGB, setRGB] = useState<{ [index: number]: number }>({ 0: 0, 1: 0, 2: 0 })
-    const [tTest2D, setTest2D] = useState<[number, number]>([0, 0])
+
+    const [t2DTarget, set2DTarget] = useState<[number, number]>([-1, -1])
+    const [tValue2D, setValue2D] = useState<[number, number]>([0, 0])
+
+    const [tSliderPixels, setSliderPixels] = useState<PixelData[]>([])
     const [t2DSliderPixels, set2DSliderPixels] = useState<PixelData[]>([])
 
     // 初期化処理
@@ -35,21 +40,29 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
 
         // 色の更新
         setState(state.update({ color: [tRGB[0], tRGB[1], tRGB[2]] }))
-    }, [tRGB, flagRealtime])
+    }, [tRGB])
 
     // 2Dスライダー更新処理
     useEffect(() => {
         // 値のチェック
-        const tRGB_ = { 0: tTest2D[0], 1: tTest2D[1], 2: tRGB[2] }
+        const tRGB_ = { ...tRGB, [t2DTarget[0]]: tValue2D[0], [t2DTarget[1]]: tValue2D[1] }
         const [flag, tNewRGB] = normalizeRGB([tRGB_[0], tRGB_[1], tRGB_[2]])
         if (flag) {
-            setTest2D([tNewRGB[0], tNewRGB[1]])
+            setValue2D([tNewRGB[t2DTarget[0]], tNewRGB[t2DTarget[1]]])
             return
         }
 
         // 値の更新
         setRGB(tRGB_)
-    }, [tTest2D, flagRealtime])
+    }, [tValue2D])
+
+    // 2Dスライダーのターゲットが変更された場合の処理
+    useEffect(() => {
+        if (t2DTarget[0] < 0 || t2DTarget[1] < 0) {
+            return
+        }
+        setValue2D([tRGB[t2DTarget[0]], tRGB[t2DTarget[1]]])
+    }, [t2DTarget])
 
     // スライダー画像の更新
     useEffect(() => {
@@ -68,28 +81,66 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
 
         // 2Dスライダー
         if (flagRealtime) {
-            const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => [Math.round(x * 255), Math.round(y * 255), tRGB[2]])
+            const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => {
+                const tRGB_ = { ...tRGB, [t2DTarget[0]]: x * 255, [t2DTarget[1]]: y * 255 }
+                return [tRGB_[0], tRGB_[1], tRGB_[2]]
+            })
             set2DSliderPixels([t2DSliderPixel])
         } else {
-            const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => [Math.round(x * 255), Math.round(y * 255), 0])
+            const t2DSliderPixel: PixelData = pixelUtil.GeneratePixelFromFunc(300, 300, (x, y) => {
+                const tRGB_ = { ...tRGB, [t2DTarget[0]]: x * 255, [t2DTarget[1]]: y * 255 }
+                return [tRGB_[0], tRGB_[1], tRGB_[2]]
+            })
             set2DSliderPixels([t2DSliderPixel])
         }
-    }, [tRGB, flagRealtime])
+    }, [tRGB, flagRealtime, t2DTarget])
 
     return (
         <>
-            <Slider1D value={tRGB[0] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 0: v })}>
-                <ImageCanvas pixelData={tSliderPixels[0]} />
-            </Slider1D>
-            <Slider1D value={tRGB[1] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 1: v })}>
-                <ImageCanvas pixelData={tSliderPixels[1]} />
-            </Slider1D>
-            <Slider1D value={tRGB[2] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 2: v })}>
-                <ImageCanvas pixelData={tSliderPixels[2]} />
-            </Slider1D>
-            <Slider2D value={tTest2D} min={[0, 0]} max={[255, 255]} step={[1, 1]} setValue={(v) => setTest2D(v)}>
-                <ImageCanvas pixelData={t2DSliderPixels[0]} />
-            </Slider2D>
+            <div css={css(HorizontalFlex)} >
+                <Slider1D value={tRGB[0] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 0: v })}>
+                    <ImageCanvas pixelData={tSliderPixels[0]} />
+                </Slider1D>
+                <label>
+                    <input type="radio" name="2DTarget0" value="0" onChange={() => set2DTarget([0, t2DTarget[1]])} />
+                    2D x
+                </label>
+                <label>
+                    <input type="radio" name="2DTarget1" value="0" onChange={() => set2DTarget([t2DTarget[0], 0])} />
+                    2D y
+                </label>
+            </div>
+            <div css={css(HorizontalFlex)} >
+                <Slider1D value={tRGB[1] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 1: v })}>
+                    <ImageCanvas pixelData={tSliderPixels[1]} />
+                </Slider1D>
+                <label>
+                    <input type="radio" name="2DTarget0" value="1" onChange={() => set2DTarget([1, t2DTarget[1]])} />
+                    2D x
+                </label>
+                <label>
+                    <input type="radio" name="2DTarget1" value="1" onChange={() => set2DTarget([t2DTarget[0], 1])} />
+                    2D y
+                </label>
+            </div>
+            <div css={css(HorizontalFlex)} >
+                <Slider1D value={tRGB[2] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 2: v })}>
+                    <ImageCanvas pixelData={tSliderPixels[2]} />
+                </Slider1D>
+                <label>
+                    <input type="radio" name="2DTarget0" value="2" onChange={() => set2DTarget([2, t2DTarget[1]])} />
+                    2D x
+                </label>
+                <label>
+                    <input type="radio" name="2DTarget1" value="2" onChange={() => set2DTarget([t2DTarget[0], 2])} />
+                    2D y
+                </label>
+            </div>
+            {t2DTarget[0] >= 0 && t2DTarget[1] >= 0 && t2DTarget[0] !== t2DTarget[1] && (
+                <Slider2D value={tValue2D} min={[0, 0]} max={[255, 255]} step={[1, 1]} setValue={(v) => setValue2D(v)}>
+                    <ImageCanvas pixelData={t2DSliderPixels[0]} />
+                </Slider2D>
+            )}
         </>
     )
 }
