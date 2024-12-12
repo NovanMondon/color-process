@@ -24,3 +24,18 @@ export const ColorWeak = css({
     color: 'black',
     backgroundColor: '#ddd',
 })
+
+export const SliderHandleRadius = 8
+
+export const SlideThumbStyle = css({
+    position: "absolute",
+    width: SliderHandleRadius * 2,
+    height: SliderHandleRadius * 2,
+    pointerEvents: "none",
+    backgroundColor: "white",
+    border: "3px solid black",
+    borderColor: "black",
+    borderRadius: "50%",
+    top: 0,
+    boxSizing: "border-box",
+})
