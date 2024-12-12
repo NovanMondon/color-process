@@ -123,7 +123,7 @@ export const ColorSliderComponent = (
     return (
         <>
             <div css={css(VerticalFlex)}>
-                {Object.keys(tValue).map((k) => { console.log(k); return Number(k) }).filter((i) => i >= 0).map((i) =>
+                {Object.keys(tValue).map((k) => Number(k)).filter((i) => i >= 0).map((i) =>
                     !(is2DSliderEnabled() && (i === t2DTarget[0] || i === t2DTarget[1])) && (
                         <div key={i} css={css(HorizontalFlex)} >
                             <Slider1D

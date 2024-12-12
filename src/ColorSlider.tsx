@@ -6,8 +6,9 @@ import { HorizontalFlex, VerticalFlex } from "./Styles"
 import { useState } from "react"
 import { ColorSliderRGB } from "./ColorSliderRGB"
 import { ColorSliderHSV } from "./ColorSliderHSV"
+import { ColorSliderYUV } from "./ColorSliderYUV"
 
-type ColorSliderMode = "RGB" | "HSV"
+type ColorSliderMode = "RGB" | "HSV" | "YUV"
 
 export const ColorSlider = ({ state, setState }: { state: AppState, setState: SetAppState }) => {
     const [tMode, setMode] = useState<ColorSliderMode>("RGB")
@@ -19,6 +20,7 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
                 <div css={css(HorizontalFlex, { margin: 5 })}>
                     <button onClick={() => setMode("RGB")}>RGB</button>
                     <button onClick={() => setMode("HSV")}>HSV</button>
+                    <button onClick={() => setMode("YUV")}>YUV</button>
                 </div>
                 <div css={css(HorizontalFlex, { margin: 5 })}>
                     <label>
@@ -37,6 +39,9 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
             }
             {tMode === "HSV" &&
                 <ColorSliderHSV state={state} setState={setState} flagRealtime={tFlagRealtime} />
+            }
+            {tMode === "YUV" &&
+                <ColorSliderYUV state={state} setState={setState} flagRealtime={tFlagRealtime} />
             }
         </div>
     )
