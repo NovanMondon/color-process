@@ -42,9 +42,11 @@ export const ColorSliderComponent = (
         }
     }, [])
 
+    const is2DSliderEnabled = () => { return t2DTarget[0] >= 0 && t2DTarget[1] >= 0 && t2DTarget[0] !== t2DTarget[1] }
+
     // 2Dスライダーのターゲットが変更された場合の処理
     useEffect(() => {
-        if (t2DTarget[0] < 0 || t2DTarget[1] < 0) {
+        if (!is2DSliderEnabled()) {
             return
         }
         setValue2D([tValue[t2DTarget[0]], tValue[t2DTarget[1]]])
@@ -52,6 +54,9 @@ export const ColorSliderComponent = (
 
     // 2Dスライダー更新処理
     useEffect(() => {
+        if (!is2DSliderEnabled()) {
+            return
+        }
         // 値のチェック
         const tUpdatedValue = { ...tValue, [t2DTarget[0]]: tValue2D[0], [t2DTarget[1]]: tValue2D[1] }
         const [flag, tNewValue] = normalizeValue([tUpdatedValue[0], tUpdatedValue[1], tUpdatedValue[2]])
@@ -117,8 +122,6 @@ export const ColorSliderComponent = (
             set2DSliderPixels([t2DSliderPixel])
         }
     }, [tValue, flagRealtime, t2DTarget])
-
-    const is2DSliderEnabled = () => { return t2DTarget[0] >= 0 && t2DTarget[1] >= 0 && t2DTarget[0] !== t2DTarget[1] }
 
     return (
         <>

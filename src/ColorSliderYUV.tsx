@@ -7,7 +7,7 @@ import { colorUtil } from "./colorUtil"
 const YUV_MAX = [255, 255, 255]
 const YUV_MIN = [0, 1, 1]
 const YUV_STEP = [1, 1, 1]
-const YUV_INIT = { 0: 255, 1: 1, 2: 1 }
+const YUV_INIT = { 0: 255, 1: 128, 2: 128 }
 
 function normalizeYUV(yuv: number[]): [boolean, number[]] {
     if (yuv.length !== 3) {
