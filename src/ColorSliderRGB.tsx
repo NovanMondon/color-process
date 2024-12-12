@@ -110,48 +110,26 @@ export const ColorSliderRGB = ({ state, setState, flagRealtime }: { state: AppSt
         }
     }, [tRGB, flagRealtime, t2DTarget])
 
+    const is2DSliderEnabled = () => { return t2DTarget[0] >= 0 && t2DTarget[1] >= 0 && t2DTarget[0] !== t2DTarget[1] }
+
     return (
         <>
-            <div css={css(HorizontalFlex)} >
-                <Slider1D value={tRGB[0] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 0: v })}>
-                    <ImageCanvas pixelData={tSliderPixels[0]} />
-                </Slider1D>
-                <label>
-                    <input type="radio" name="2DTarget0" value="0" onChange={() => set2DTarget([0, t2DTarget[1]])} />
-                    2D x
-                </label>
-                <label>
-                    <input type="radio" name="2DTarget1" value="0" onChange={() => set2DTarget([t2DTarget[0], 0])} />
-                    2D y
-                </label>
-            </div>
-            <div css={css(HorizontalFlex)} >
-                <Slider1D value={tRGB[1] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 1: v })}>
-                    <ImageCanvas pixelData={tSliderPixels[1]} />
-                </Slider1D>
-                <label>
-                    <input type="radio" name="2DTarget0" value="1" onChange={() => set2DTarget([1, t2DTarget[1]])} />
-                    2D x
-                </label>
-                <label>
-                    <input type="radio" name="2DTarget1" value="1" onChange={() => set2DTarget([t2DTarget[0], 1])} />
-                    2D y
-                </label>
-            </div>
-            <div css={css(HorizontalFlex)} >
-                <Slider1D value={tRGB[2] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, 2: v })}>
-                    <ImageCanvas pixelData={tSliderPixels[2]} />
-                </Slider1D>
-                <label>
-                    <input type="radio" name="2DTarget0" value="2" onChange={() => set2DTarget([2, t2DTarget[1]])} />
-                    2D x
-                </label>
-                <label>
-                    <input type="radio" name="2DTarget1" value="2" onChange={() => set2DTarget([t2DTarget[0], 2])} />
-                    2D y
-                </label>
-            </div>
-            {t2DTarget[0] >= 0 && t2DTarget[1] >= 0 && t2DTarget[0] !== t2DTarget[1] && (
+            {[0, 1, 2].map((index) => !(is2DSliderEnabled() && (index === t2DTarget[0] || index === t2DTarget[1])) && (
+                <div key={index} css={css(HorizontalFlex)} >
+                    <Slider1D value={tRGB[index] ?? 0} min={0} max={255} step={1} setValue={(v) => setRGB({ ...tRGB, [index]: v })}>
+                        <ImageCanvas pixelData={tSliderPixels[index]} />
+                    </Slider1D>
+                    <label>
+                        <input type="radio" name="2DTarget0" value={index} onChange={() => set2DTarget([index, t2DTarget[1]])} />
+                        2D x
+                    </label>
+                    <label>
+                        <input type="radio" name="2DTarget1" value={index} onChange={() => set2DTarget([t2DTarget[0], index])} />
+                        2D y
+                    </label>
+                </div>
+            ))}
+            {is2DSliderEnabled() && (
                 <Slider2D
                     value={tValue2D}
                     min={[RGB_MIN[t2DTarget[0]], RGB_MIN[t2DTarget[1]]]}
