@@ -122,31 +122,40 @@ export const ColorSliderComponent = (
 
     return (
         <>
-            {[0, 1, 2].map((index) => !(is2DSliderEnabled() && (index === t2DTarget[0] || index === t2DTarget[1])) && (
-                <div key={index} css={css(HorizontalFlex)} >
-                    <Slider1D value={tValue[index] ?? 0} min={0} max={255} step={1} setValue={(v) => setValue({ ...tValue, [index]: v })}>
-                        <ImageCanvas pixelData={tSliderPixels[index]} />
-                    </Slider1D>
-                    <label>
-                        <input type="radio" name="2DTarget0" value={index} onChange={() => set2DTarget([index, t2DTarget[1]])} />
-                        2D x
-                    </label>
-                    <label>
-                        <input type="radio" name="2DTarget1" value={index} onChange={() => set2DTarget([t2DTarget[0], index])} />
-                        2D y
-                    </label>
-                </div>
-            ))}
-            {is2DSliderEnabled() && (
-                <Slider2D
-                    value={tValue2D}
-                    min={[valueMin[t2DTarget[0]], valueMin[t2DTarget[1]]]}
-                    max={[valueMax[t2DTarget[0]], valueMax[t2DTarget[1]]]}
-                    step={[valueStep[t2DTarget[0]], valueStep[t2DTarget[1]]]}
-                    setValue={(v) => setValue2D(v)}>
-                    <ImageCanvas pixelData={t2DSliderPixels[0]} />
-                </Slider2D>
+            {Object.keys(tValue).map((k) => { console.log(k); return Number(k) }).filter((i) => i >= 0).map((i) =>
+                !(is2DSliderEnabled() && (i === t2DTarget[0] || i === t2DTarget[1])) && (
+                    <div key={i} css={css(HorizontalFlex)} >
+                        <Slider1D
+                            value={tValue[i] ?? valueMin[i]}
+                            min={valueMin[i]}
+                            max={valueMax[i]}
+                            step={valueStep[i]}
+                            setValue={(v) => setValue({ ...tValue, [i]: v })}>
+                            <ImageCanvas pixelData={tSliderPixels[i]} />
+                        </Slider1D>
+                        <label>
+                            <input type="radio" name="2DTarget0" value={i} onChange={() => set2DTarget([i, t2DTarget[1]])} />
+                            2D x
+                        </label>
+                        <label>
+                            <input type="radio" name="2DTarget1" value={i} onChange={() => set2DTarget([t2DTarget[0], i])} />
+                            2D y
+                        </label>
+                    </div >
+                )
             )}
+            {
+                is2DSliderEnabled() && (
+                    <Slider2D
+                        value={tValue2D}
+                        min={[valueMin[t2DTarget[0]], valueMin[t2DTarget[1]]]}
+                        max={[valueMax[t2DTarget[0]], valueMax[t2DTarget[1]]]}
+                        step={[valueStep[t2DTarget[0]], valueStep[t2DTarget[1]]]}
+                        setValue={(v) => setValue2D(v)}>
+                        <ImageCanvas pixelData={t2DSliderPixels[0]} />
+                    </Slider2D>
+                )
+            }
         </>
     )
 }
