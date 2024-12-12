@@ -14,6 +14,8 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
     const [tMode, setMode] = useState<ColorSliderMode>("RGB")
     const [tFlagRealtime, setFlagRealtime] = useState(false)
 
+    const copyState: (() => AppState) = () => (state.update({})) // 更新ループを防ぐためにコピーを返す
+
     return (
         <div css={css(VerticalFlex)}>
             <div css={css(HorizontalFlex)}>
@@ -35,13 +37,13 @@ export const ColorSlider = ({ state, setState }: { state: AppState, setState: Se
             </div>
             <p>スライダー上をドラッグして設定</p>
             {tMode === "RGB" &&
-                <ColorSliderRGB state={state} setState={setState} flagRealtime={tFlagRealtime} />
+                <ColorSliderRGB state={copyState()} setState={setState} flagRealtime={tFlagRealtime} />
             }
             {tMode === "HSV" &&
-                <ColorSliderHSV state={state} setState={setState} flagRealtime={tFlagRealtime} />
+                <ColorSliderHSV state={copyState()} setState={setState} flagRealtime={tFlagRealtime} />
             }
             {tMode === "YUV" &&
-                <ColorSliderYUV state={state} setState={setState} flagRealtime={tFlagRealtime} />
+                <ColorSliderYUV state={copyState()} setState={setState} flagRealtime={tFlagRealtime} />
             }
         </div>
     )

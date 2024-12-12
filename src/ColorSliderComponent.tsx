@@ -42,18 +42,13 @@ export const ColorSliderComponent = (
         }
     }, [])
 
-    // スライダー更新処理
+    // 2Dスライダーのターゲットが変更された場合の処理
     useEffect(() => {
-        // 値のチェック
-        const [flag, tNewValue] = normalizeValue([tValue[0], tValue[1], tValue[2]])
-        if (flag) {
-            setValue({ 0: tNewValue[0], 1: tNewValue[1], 2: tNewValue[2] })
+        if (t2DTarget[0] < 0 || t2DTarget[1] < 0) {
             return
         }
-
-        // 色の更新
-        setState(state.update({ color: value2Color(tValue) }))
-    }, [tValue])
+        setValue2D([tValue[t2DTarget[0]], tValue[t2DTarget[1]]])
+    }, [t2DTarget])
 
     // 2Dスライダー更新処理
     useEffect(() => {
@@ -69,13 +64,18 @@ export const ColorSliderComponent = (
         setValue(tUpdatedValue)
     }, [tValue2D])
 
-    // 2Dスライダーのターゲットが変更された場合の処理
+    // スライダー更新処理
     useEffect(() => {
-        if (t2DTarget[0] < 0 || t2DTarget[1] < 0) {
+        // 値のチェック
+        const [flag, tNewValue] = normalizeValue([tValue[0], tValue[1], tValue[2]])
+        if (flag) {
+            setValue({ 0: tNewValue[0], 1: tNewValue[1], 2: tNewValue[2] })
             return
         }
-        setValue2D([tValue[t2DTarget[0]], tValue[t2DTarget[1]]])
-    }, [t2DTarget])
+
+        // 色の更新
+        setState(state.update({ color: value2Color(tValue) }))
+    }, [tValue])
 
     // スライダー画像の更新
     useEffect(() => {

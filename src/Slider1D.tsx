@@ -53,7 +53,7 @@ export const Slider1D = (
                     onChange={(e) => {
                         const tValue = parseInt(e.target.value)
                         if (isNaN(tValue)) return
-                        setValue(tValue)
+                        if (aValue !== tValue) setValue(tValue)
                     }}
                 />
             </div>
